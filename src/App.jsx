@@ -5,12 +5,13 @@ function App() {
   const [todo, setTodo] = useState([]);
   const [input, setInput] = useState("");
   const [qoshish, setQoshish] = useState("");
+  const [openModal, setOpenModal] = useState(false);
   useEffect(() => {
     axios
       .get("https://json-placeholder.mock.beeceptor.com/users")
       .then((res) => {
         setTodo(res.data.map((item) => ({ ...item, completed: false })));
-        setTodo(res.data);
+
         console.log(res.data);
       });
   }, []);
@@ -22,38 +23,61 @@ function App() {
       </div>
     );
   }
-  const filtered = todo.filter((item) => {
-    return item.name.toLowerCase().includes(input.toLowerCase());
-  });
+  const filtered = (todo || []).filter((item) =>
+    item?.name?.toLowerCase().includes(input.toLowerCase())
+  );
 
   return (
     <>
-      <div className="w-[600px] mx-auto flex gap-2 my-3 ">
-        <input
-          value={qoshish}
-          onChange={(e) => {
-            setQoshish(e.currentTarget.value);
-          }}
-          className="w-[500px] p-3 rounded-lg bg-slate-300 "
-          type="text"
-          placeholder="Kiritish uchun yozin..."
-        />
-        <button
-          onClick={() => {
-            const new_arr = todo.concat({
-              name: qoshish,
-              id: todo.length + 1,
-              completed: false,
-            });
-            setTodo(new_arr);
-            setQoshish("");
-          }}
-          className="w-[80px] cursor-pointer rounded-lg bg-green-400 text-white p-3"
-        >
-          +ADD
-        </button>
-      </div>
+      
+      {openModal && (
+        <div className="fixed inset-0 bg-black/80 flex justify-center items-center">
+          <div className="w-[600px] mx-auto flex gap-2 my-3 ">
+            <input
+              value={qoshish}
+              onChange={(e) => {
+                setQoshish(e.currentTarget.value);
+              }}
+              className="w-[500px] p-3 rounded-lg bg-slate-300 "
+              type="text"
+              placeholder="Kiritish uchun yozin..."
+            />
+            <button
+              onClick={() => {
+                setOpenModal(false)
+                const new_arr = todo.concat({
+                  name: qoshish,
+                  id: todo.length + 1,
+                  completed: false,
+                });
+                setTodo(new_arr);
+                setQoshish("");
+              }}
+              className="w-[80px] cursor-pointer rounded-lg bg-green-400 text-white p-3"
+            >
+              +ADD
+            </button>
+            <button
+              onClick={() => {
+                setOpenModal(false);
+              }}
+              className="bg-red-500 text-white p-2 rounded-lg "
+            >
+              Orqaga Qaytish
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="w-[600px] p-6 bg-slate-400 mx-auto rounded-lg my-4 ">
+      <button  
+        onClick={() => {
+          setOpenModal(true);
+        }}
+        className="bg-green-400 mb-2 flex justify-end p-2 mx-auto cursor-pointer text-white rounded-lg"
+      >
+        Qoshish
+      </button>
         <div>
           <input
             value={input}
@@ -71,7 +95,9 @@ function App() {
               <div className="flex justify-between items-center">
                 <p
                   className={`text-xl text-white ${
-                    item.completed ? "line-through" : "text-white"
+                    item.completed
+                      ? "line-through text-yellow-500"
+                      : "text-white"
                   }`}
                 >
                   {item.name}
@@ -80,22 +106,22 @@ function App() {
                   <button
                     onClick={() => {
                       setTodo(
-                        todo.map((i) => {
+                        todo.map((i) =>
                           i.id === item.id
                             ? { ...i, completed: !i.completed }
-                            : i;
-                        })
+                            : i
+                        )
                       );
                     }}
                     className="cursor-pointer bg-green-500 p-2 rounded-xl w-"
                   >
-                    belgilash
+                    bajardim
                   </button>
                   <button
                     onClick={() => {
                       setTodo(todo.filter((fil_i) => fil_i.id !== item.id));
                     }}
-                    className="cursor-pointer bg-red-500 p-2 rounded-xl w-"
+                    className="cursor-pointer bg-red-500 p-2 rounded-full w-"
                   >
                     X
                   </button>
